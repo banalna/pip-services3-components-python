@@ -10,9 +10,11 @@
 """
 
 import datetime
+import socket
 from pytz import timezone
 
 from pip_services3_commons.config.IReconfigurable import IReconfigurable
+
 
 class ContextInfo(IReconfigurable):
     """
@@ -40,14 +42,14 @@ class ContextInfo(IReconfigurable):
         context.startTime		// Possible result: 2018-01-01:22:12:23.45Z
         context.uptime			// Possible result: 3454345
     """
-    _name = "unknown"
-    _properties = None
-    _description = None
-    _contextId = None
-    _startTime = datetime.datetime.now()
-    _uptime = 0
+    __name = "unknown"
+    __properties = None
+    __description = None
+    __context_id = socket.gethostname()
+    __start_time = datetime.datetime.now()
+    __uptime = 0
 
-    def __init__(self, name = None, description = None):
+    def __init__(self, name=None, description=None):
         """
         Creates a new instance of this context info.
 
@@ -55,8 +57,8 @@ class ContextInfo(IReconfigurable):
 
         :param description: (optional) a human-readable description of the context.
         """
-        self._name = name or "unknown"
-        self._description = description
+        self.__name = name or "unknown"
+        self.__description = description
 
     def configure(self, config):
         """
@@ -64,104 +66,116 @@ class ContextInfo(IReconfigurable):
 
         :param config: configuration parameters to be set.
         """
-        self._name = config.get_as_string_with_default("name", self._name)
-        self._name = config.get_as_string_with_default("info.name", self._name)
+        self.__name = config.get_as_string_with_default("name", self.__name)
+        self.__name = config.get_as_string_with_default("info.name", self.__name)
 
-        self._description = config.get_as_string_with_default("description", self._description)
-        self._description = config.get_as_string_with_default("info.description", self._description)
+        self.__description = config.get_as_string_with_default("description", self.__description)
+        self.__description = config.get_as_string_with_default("info.description", self.__description)
 
-        self._properties = config.get_section("properties")
+        self.__properties = config.get_section("properties")
 
-    def get_name(self):
+    @property
+    def name(self):
         """
         Gets the context name.
 
         :return: the context name
         """
-        return self._name
+        return self.__name
 
-    def set_name(self, name):
+    @name.setter
+    def name(self, name):
         """
         Sets the context name.
 
         :param name: a new name for the context.
         """
-        self._name = name if name != None else "unknown"
+        self.__name = name if name is not None else "unknown"
 
-    def get_description(self):
+    @property
+    def description(self):
         """
         Gets the human-readable description of the context.
 
         :return: the human-readable description of the context.
         """
-        return self._description
+        return self.__description
 
-    def set_description(self, description):
+    @description.setter
+    def description(self, description):
         """
         Sets the human-readable description of the context.
 
         :param description: a new human readable description of the context.
         """
-        self._description = description
+        self.__description = description
 
-    def get_context_id(self):
+    @property
+    def context_id(self):
         """
         Gets the unique context id. Usually it is the current host name.
 
         :return: the unique context id.
         """
-        return self._contextId
+        return self.__context_id
 
-    def set_context_id(self, context_id):
+    @context_id.setter
+    def context_id(self, context_id):
         """
         Sets the unique context id.
 
         :param context_id: a new unique context id.
         """
-        self._contextId = context_id
+        self.__context_id = context_id
 
-    def get_start_time(self):
+    @property
+    def start_time(self):
         """
         Gets the context start time.
 
         :return: the context start time.
         """
-        return self._startTime
+        return self.__start_time
 
-    def set_start_time(self, start_time):
+    @start_time.setter
+    def start_time(self, start_time):
         """
         Sets the context start time.
 
         :param start_time: a new context start time.
         """
-        self._startTime = start_time
+        self.__start_time = start_time
 
-    def get_uptime(self):
+    @property
+    def uptime(self):
         """
         Calculates the context uptime as from the start time.
 
         :return: number of milliseconds from the context start time.
         """
-        return self._uptime
+        return self.__uptime
 
-    def set_uptime(self, uptime):
-        self._uptime = uptime
+    @uptime.setter
+    def uptime(self, uptime):
+        self.__uptime = uptime
 
-    def get_properties(self):
+    @property
+    def properties(self):
         """
         Gets context additional parameters.
 
         :return: a JSON object with additional context parameters.
         """
-        return self._properties
+        return self.__properties
 
-    def set_properties(self, properties):
+    @properties.setter
+    def properties(self, properties):
         """
         Sets context additional parameters.
 
         :param properties: a JSON object with context additional parameters
         """
-        self._properties = properties
+        self.__properties = properties
 
     @staticmethod
     def from_config(config):
@@ -175,11 +189,3 @@ class ContextInfo(IReconfigurable):
         value = ContextInfo()
         value.configure(config)
         return value
-    
-    name = property(get_name, set_name)
-    description = property(get_description, set_description)
-    properties = property(get_properties, set_properties)
-    uptime = property(get_uptime, set_uptime)
-    startTime = property(get_start_time, set_start_time)
-    contextId = property(get_context_id, set_context_id)
-

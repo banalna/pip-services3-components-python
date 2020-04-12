@@ -52,7 +52,7 @@ class Logger(ILogger, IReconfigurable, IReferenceable, ABC):
         """
         context_info = references.get_one_optional(Descriptor("pip-services", "context-info", "*", "*", "1.0"))
         if context_info != None and self._source == None:
-            self._source = context_info.get_name()
+            self._source = context_info.name
 
     def get_level(self):
         """
